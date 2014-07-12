@@ -1,0 +1,133 @@
+{% extends "ast_rec/base.html" %}
+
+
+
+{% block right_content %}
+    <script>
+        open_player = function (param, path, disposition){
+            var player = '<tr id="player">' +
+                            '<td colspan="9">' +
+                                '<audio controls="" preload="none" autoplay>' +
+                                    '<source src="' + path + '" type="audio/wav"> Your browser does not support the element.' +
+                                '</audio>' +
+                                '<a href="' + path + '">Download</a>' +
+                            '</td>' +
+                          '</tr>';
+            if (disposition == "ANSWERED"){
+                if ($('#' + param.id).next('#player').length > 0) {
+                    $('#player').remove();
+                } else {
+                    $('#player').remove();
+                    $('#' + param.id).after(player);
+                }
+            }
+        }
+    </script>
+    <td>
+
+    </td>
+    <div class="block_main well-border">
+        <div class="block_left">
+        <table border="1" class="qqq">
+            <thead>
+                <tr class="call_list_menu">
+                    <th class="call-list-menu datetime">
+                        {% if order_by == '-calldate' %}
+                            <a class="order_active" href="?order=-calldate">&darr;</a> Datetime <a class=order_passive href="?order=calldate">&uarr;</a>
+                        {% else %}
+                            <a class="order_passive" href="?order=-calldate">&darr;</a> Datetime <a class=order_active href="?order=calldate">&uarr;</a>
+                        {% endif %}
+                    </th>
+                    <th class="call-list-menu source">Source</th>
+                    <th class="call-list-menu destination">Destination</th>
+                    <th class="call-list-menu duration">Duration</th>
+                    <th class="call-list-menu disposition">Disposition</th>
+                    <th class="call-list-menu channel">Channel</th>
+                    <th class="call-list-menu destchannel">Dest Channel</th>
+
+
+                </tr>
+            </thead>
+
+            {% for call in call_list %}
+                <tr class="{% cycle 'row1' 'row2' %} {% if call.disposition == 'ANSWERED'%} answered {% else %} noanswer {% endif %}" id="rowid{{ forloop.counter }}" onclick="open_player(this, '{% url "ast_rec:records_xsendfile" call.uniqueid %}', '{{ call.disposition }}')">
+                    <th>{{ call.calldate|date:"d.m G:i:s" }}</th><td>{{ call.src }}</td><td>{{ call.dst }}</td><td>{{ call.billsec }}</td><td>{{ call.disposition }}</td><td>{{ call.channel }}</td><td>{{ call.dstchannel }}</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+        <ul class="pagination">
+            {% if call_list.has_previous %}
+                    <li><a href="?page={{ call_list.previous_page_number }}">&larr;</a></li>
+                {% else %}
+                    <li class="disabled"><a href="#">&larr;</a></li>
+                {% endif %}
+
+            {% if call_list.paginator.num_pages <= 13 %}
+                {% for linkpage in call_list.paginator.page_range %}
+                    {% if linkpage == call_list.number %}
+                        <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">(current)</span></a></li>
+                    {% else %}
+                        <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+            {% else %}
+                {% if call_list.number <= 5 %}
+                    {% for linkpage in call_list.paginator.page_range|slice:":5" %}
+                        {% if linkpage == call_list.number %}
+                            <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">(current)</span></a></li>
+                        {% else %}
+                            <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    <li><a href="?page={{ call_list.number|add:"6" }}">...</a></li>
+                    {% for linkpage in call_list.paginator.page_range|slice:"-5:" %}
+                            <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                        {% endfor %}
+
+                {% elif call_list.number > 5 and call_list.number < call_list.paginator.num_pages|add:"-5" %}
+                    <li><a href="?page=1">1</a></li>
+                    <li><a href="?page=2">2</a></li>
+                    <li><a href="?page={{ call_list.number|add:"-5" }}">...</a></li>
+
+                    <li><a href="?page={{ call_list.number|add:"-2" }}">{{ call_list.number|add:"-2" }}</a></li>
+                    <li><a href="?page={{ call_list.number|add:"-1" }}">{{ call_list.number|add:"-1" }}</a></li>
+                    <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">{{ call_list.number }}</span></a></li>
+                    <li><a href="?page={{ call_list.number|add:"1" }}">{{ call_list.number|add:"1" }}</a></li>
+                    <li><a href="?page={{ call_list.number|add:"2" }}">{{ call_list.number|add:"2" }}</a></li>
+
+                    <li><a href="?page={{ call_list.number|add:"5" }}">...</a></li>
+                    <li><a href="?page={{ call_list.paginator.num_pages|add:"-1" }}">{{ call_list.paginator.num_pages|add:"-1" }}</a></li>
+                    <li><a href="?page={{ call_list.paginator.num_pages }}">{{ call_list.paginator.num_pages }}</a></li>
+
+                {% elif  call_list.number >= call_list.paginator.num_pages|add:"-5" %}
+                    {% for linkpage in call_list.paginator.page_range|slice:":5" %}
+                            <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                        {% endfor %}
+                    <li><a href="?page={{ call_list.number|add:"-6" }}">...</a></li>
+                    {% for linkpage in call_list.paginator.page_range|slice:"-5:" %}
+                        {% if linkpage == call_list.number %}
+                            <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">{{ call_list.number }}</span></a></li>
+                        {% else %}
+                            <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                {% endif %}
+            {% endif %}
+
+            {% if call_list.has_next %}
+                    <li><a href="?page={{ call_list.next_page_number }}">&rarr;</a></li>
+                {% else %}
+                    <li class="disabled"><a href="#">&rarr;</a></li>
+                {% endif %}
+        </ul>
+        </div>
+        <div class="block_right well-border">
+            Total calls duration is: {{ total_calls_duration.min }} min {{ total_calls_duration.sec }} s. in {{ total_calls_duration.count }} calls<br>
+            Calls duration on page is: {{ page_calls_duration.min }} min {{ page_calls_duration.sec }} s. in {{ page_calls_duration.count }} calls
+        </div>
+    </div>
+
+{% endblock %}
+
+

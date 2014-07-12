@@ -1,0 +1,16 @@
+.login{
+    background: white;
+    width: 28em;
+    min-width: 300px;
+    margin:10% auto;
+}
+.errornote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    border-radius: 4px;
+    color: red;
+    background: #ffc;
+}

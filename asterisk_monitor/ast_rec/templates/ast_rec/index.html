@@ -1,0 +1,138 @@
+{% extends "ast_rec/base.html" %}
+
+{% block content %}
+    <div class="form well">
+        <form action="" method="post">
+            {% csrf_token %}
+            <table>
+               {% for field in form %}
+                <div class="fieldWrapper">
+                    {{ field.label_tag }} {{ field }}{{ field.errors }}
+                </div>
+
+            {% endfor %}
+            <tr>
+                <td colspan="2"><input type="submit" value="OK"></td>
+            </tr>
+            </table>
+        </form>
+    </div>
+<table border="1">
+    {% for call in call_list %}
+
+    <tr class="{% cycle 'row1' 'row2' %}">
+        <th><a href="http://google.com">{{ call.calldate|date:"d.m G:i:s" }}</a></th><td>{{ call.src }}</td></th><td>{{ call.clid }}</td><td>{{ call.dst }}</td><td>{{ call.duration }}</td><td>{{ call.billsec }}</td><td>{{ call.disposition }}</td><td>{{ call.channel }}</td><td>{{ call.dstchannel }}</td>
+    </tr>
+
+    {% endfor %}
+<div>Total calls duration is: {{ total_calls_duration.min }} min {{ total_calls_duration.sec }} s. in {{ total_calls_duration.count }} calls </div>
+<div>Calls duration on page is: {{ page_calls_duration.min }} min {{ page_calls_duration.sec }} s. in {{ page_calls_duration.count }} calls </div>
+
+
+<div id="visualization" style="min-width: 800px; height: 400px;"></div>
+
+{% comment %}
+<div class="pagination">
+    <span>
+        {% if call_list_view.has_previous %}
+            <span class="step-links"><a href="?page={{ call_list_view.previous_page_number }}">previous</a></span>
+        {% endif %}
+
+        {% for linkpage in call_list_view.paginator.page_range %}
+            {% ifequal linkpage call_list_view.number %}
+                <span class="current">{{ call_list_view.number }}</span>
+            {% else %}
+                <span class="step-links"><a href="?page={{ linkpage }}">{{ linkpage }}</a></span>
+            {% endifequal %}
+        {% endfor %}
+
+        {% if call_list_view.has_next %}
+            <span class="step-links"><a href="?page={{ call_list_view.next_page_number }}">next</a></span>
+        {% endif %}
+    </span>
+</div>
+{% endcomment %}
+
+<ul class="pagination">
+    {% if call_list.has_previous %}
+            <li><a href="?page={{ call_list.previous_page_number }}">&larr;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&larr;</a></li>
+        {% endif %}
+
+    {% if call_list.paginator.num_pages <= 13 %}
+        {% for linkpage in call_list.paginator.page_range %}
+            {% if linkpage == call_list.number %}
+                <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">(current)</span></a></li>
+            {% else %}
+                <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+            {% endif %}
+            {% endfor %}
+    {% else %}
+        {% if call_list.number <= 5 %}
+            {% for linkpage in call_list.paginator.page_range|slice:":5" %}
+                {% if linkpage == call_list.number %}
+                    <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">(current)</span></a></li>
+                {% else %}
+                    <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                {% endif %}
+                {% endfor %}
+            <li><a href="?page={{ call_list.number|add:"6" }}">...</a></li>
+            {% for linkpage in call_list.paginator.page_range|slice:"-5:" %}
+                    <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                {% endfor %}
+
+        {% elif call_list.number > 5 and call_list.number < call_list.paginator.num_pages|add:"-5" %}
+            <li><a href="?page=1">1</a></li>
+            <li><a href="?page=2">2</a></li>
+            <li><a href="?page={{ call_list.number|add:"-5" }}">...</a></li>
+
+            <li><a href="?page={{ call_list.number|add:"-2" }}">{{ call_list.number|add:"-2" }}</a></li>
+            <li><a href="?page={{ call_list.number|add:"-1" }}">{{ call_list.number|add:"-1" }}</a></li>
+            <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">{{ call_list.number }}</span></a></li>
+            <li><a href="?page={{ call_list.number|add:"1" }}">{{ call_list.number|add:"1" }}</a></li>
+            <li><a href="?page={{ call_list.number|add:"2" }}">{{ call_list.number|add:"2" }}</a></li>
+
+            <li><a href="?page={{ call_list.number|add:"5" }}">...</a></li>
+            <li><a href="?page={{ call_list.paginator.num_pages|add:"-1" }}">{{ call_list.paginator.num_pages|add:"-1" }}</a></li>
+            <li><a href="?page={{ call_list.paginator.num_pages }}">{{ call_list.paginator.num_pages }}</a></li>
+
+        {% elif  call_list.number >= call_list.paginator.num_pages|add:"-5" %}
+            {% for linkpage in call_list.paginator.page_range|slice:":5" %}
+                    <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                {% endfor %}
+            <li><a href="?page={{ call_list.number|add:"-6" }}">...</a></li>
+            {% for linkpage in call_list.paginator.page_range|slice:"-5:" %}
+                {% if linkpage == call_list.number %}
+                    <li class="active"><a href="#">{{ call_list.number }} <span class="sr-only">{{ call_list.number }}</span></a></li>
+                {% else %}
+                    <li><a href="?page={{ linkpage }}">{{ linkpage }}</a></li>
+                {% endif %}
+                {% endfor %}
+        {% endif %}
+    {% endif %}
+
+    {% if call_list.has_next %}
+            <li><a href="?page={{ call_list.next_page_number }}">&rarr;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&rarr;</a></li>
+        {% endif %}
+</ul>
+
+
+
+</table>
+    <script>
+        $('#id_start_time').datetimepicker({
+         lang:'ua'
+        });
+        $('#id_end_time').datetimepicker({
+         lang:'ua'
+        });
+
+    </script>
+
+
+{% endblock %}
+
+

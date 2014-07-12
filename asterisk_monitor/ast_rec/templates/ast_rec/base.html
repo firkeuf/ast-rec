@@ -1,0 +1,99 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Ast Rec{% endblock %}</title>
+
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.css">
+        <link rel="stylesheet" href="{% static "css/jquery.datetimepicker.css" %}">
+        <link rel="stylesheet" href="{% static "css/bootstrap-multiselect.css" %}">
+        <link rel="stylesheet" href="{% static "css/bootstrap-select.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/ast_rec.css" %}">
+
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+        <script type="text/javascript" src="{% static 'js/jquery.datetimepicker.js' %}"></script>
+        <script type="text/javascript" src= "{% static 'js/bootstrap-multiselect.js' %}"></script>
+        <script type="text/javascript" src= "{% static 'js/bootstrap-select.js' %}"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            $('#channel-select').multiselect({
+  	        		        	maxHeight: 300,
+                                buttonWidth: 168,
+                                nonSelectedText: 'Channel'
+            });
+            $('#direction-select').multiselect({
+  	        		        	maxHeight: 300,
+                                buttonWidth: 168,
+                                nonSelectedText: 'Direction'
+            });
+            $('#disposition-select').multiselect({
+  	        		        	maxHeight: 300,
+                                buttonWidth: 168,
+                                nonSelectedText: 'Disposition'
+            });
+        });
+</script>
+
+
+
+        {% block js_css %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="left">
+            {% block menu %}
+                <div class="tabs_left">
+                	<ul class="tabs_ul">
+                	  	<li {% if module == 'call_list' %}class="active"{% endif %}><a href="{% url 'ast_rec:call_list_view' %}" >Calls list</a></li>
+                		<li {% if module == 'synchronous_calls' %}class="active"{% endif %}><a href="{% url 'ast_rec:synchronous_calls' %}">Synchronous calls</a></li>
+                		<li {% if module == 'by_hour_calls' %}class="active"{% endif %}><a href="{% url 'ast_rec:by_hour_calls' %}">By hour calls</a></li>
+                		<!--<li><a href="#tab4" data-toggle="tab">Forth</a></li>
+                		<li><a href="#tab5" data-toggle="tab">Fifth</a></li>
+                		<li><a href="#tab6" data-toggle="tab">Sixth</a></li>-->
+                		<li><a href="/logout">Logout</a></li>
+                	</ul>
+                </div>
+            {% endblock %}
+        </div>
+        <div class="middle">
+            {% block middle_content %}
+                <div class="middle-column well-border">
+                    <form class="form-inline" action="" method="post">
+                        {% csrf_token %}
+                        <ul class="form-column">
+                            {% for field in form %}
+                                <li>{{ field }}{{ field.errors }}</li>
+                            {% endfor %}
+                        </ul>
+                        <div class="text-center">
+                            <button type="submit" class="butn">Submit</button>
+                        </div>
+
+                    </form>
+                </div>
+                <script>
+                   $('#id_start_time').datetimepicker({
+                    lang:'ua'
+                   });
+                   $('#id_end_time').datetimepicker({
+                    lang:'ua'
+                   });
+
+               </script>
+            {% endblock %}
+        </div>
+        <div class="right">
+            {% block right_content %}{% endblock %}
+        </div>
+    </body>
+</html>

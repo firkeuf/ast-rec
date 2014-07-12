@@ -1,0 +1,118 @@
+{% extends "ast_rec/base.html" %}
+
+{% block js_css %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'js/flot/jquery.flot.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/flot/jquery.flot.time.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/flot/jshashtable-3.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/flot/jquery.numberformatter-1.2.3.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/flot/jquery.flot.navigate.js' %}"></script>
+{% endblock %}
+
+
+{% block right_content %}
+    <div class="block_main well-border">
+        <div>Number of Calls per Hour</div>
+        <div id="calls-by-hour" class="graphic"></div>
+        <div>Number of Minutes per Hour</div>
+        <div id="duration-by-hour" class="graphic"></div>
+    </div>
+    </div>
+
+    <script>
+        var count_placeholder = $("#calls-by-hour");
+        var duration_placeholder = $("#duration-by-hour");
+
+        var count_dataset = {{ calls_by_hour.count|safe }};
+        var duration_dataset = {{ calls_by_hour.duration|safe }};
+
+        var options = {
+            xaxes: [{
+
+                color: "#DDDDDD"
+            }],
+            yaxis: {
+                color: "#DDDDDD",
+                tickDecimals: 0,
+                zoomRange: false,
+                panRange: false
+            },
+            legend: {
+                noColumns: 0,
+                labelFormatter: function (label, series) {
+                    return "<font color=\"white\">" + label + "</font>";
+                },
+                backgroundColor: "#000",
+                backgroundOpacity: 0.5,
+                labelBoxBorderColor: "#000000",
+                position: "nw"
+            },
+            grid: {
+                hoverable: true,
+                borderWidth: 1,
+                mouseActiveRadius: 50,
+                axisMargin: 20
+            },
+
+            zoom: {
+                interactive: true
+            },
+            pan: {
+                interactive: true
+            }
+        };
+
+        var previousPoint = null, previousLabel = null;
+
+
+        $.fn.UseTooltip = function () {
+            $(this).bind("plothover", function (event, pos, item) {
+                if (item) {
+                    if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+                        previousPoint = item.dataIndex;
+                        previousLabel = item.series.label;
+                        $("#tooltip").remove();
+
+                        var x = item.datapoint[0];
+                        var y = item.datapoint[1];
+                        var date = new Date(x);
+                        var color = item.series.color;
+                        var msg = "Date: " + item.series.label + "<br>" +
+                                "Hour: " + x + ", " + item.series.name + y;
+                        showTooltip(item.pageX, item.pageY, color, msg);
+                    }
+                } else {
+                    $("#tooltip").remove();
+                    previousPoint = null;
+                }
+            });
+        };
+
+        function showTooltip(x, y, color, contents) {
+            $('<div id="tooltip">' + contents + '</div>').css({
+                position: 'absolute',
+                display: 'none',
+                top: y - 50,
+                left: x - 120,
+                border: '2px solid ' + color,
+                padding: '3px',
+                'font-size': '11px',
+                'border-radius': '5px',
+                'background-color': '#F8FFE0',
+                opacity: 0.9
+            }).appendTo("body").fadeIn(200);
+        }
+
+        $(document).ready(function () {
+            $.plot(count_placeholder, count_dataset, options);
+            count_placeholder.UseTooltip();
+        });
+        $(document).ready(function () {
+            $.plot(duration_placeholder, duration_dataset, options);
+            duration_placeholder.UseTooltip();
+        });
+    </script>
+
+{% endblock %}
+
+
