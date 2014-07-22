@@ -52,7 +52,7 @@ class ChannelList(models.Model):
         for ch in channel_qs:
             present_channels.add(ch.value)
 
-        raw_channels_qs = Cdr.objects.using('asterisk_bd').order_by('-calldate').all()[:500]  # [:5000 * 1 / (channel_qs[0].id + 1)] #TODO: need first channel
+        raw_channels_qs = Cdr.objects.using('asterisk_db').order_by('-calldate').all()[:500]  # [:5000 * 1 / (channel_qs[0].id + 1)] #TODO: need first channel
         for call in raw_channels_qs:
             if not 'Bridge' in call.channel:
                 channel = call.channel.split('-')[0].split('/')[1]
