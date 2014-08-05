@@ -250,7 +250,7 @@ def records_xsendfile(request, uniqueid, document_root):
         ls_list = os.listdir(path)
         download_filename = None
         for f in ls_list:
-            if '-' + uniqueid[0:-4] + '.ogg' in f:  # confbridge-1404816948.233-1404816957.ogg
+            if '-' + uniqueid[0:10] + '.ogg' in f:  # confbridge-1404816948.233-1404816957.ogg
                 filepath = os.path.join(path, f)
                 download_filename = datetime.datetime.fromtimestamp(float(uniqueid)).strftime('%Y-%m-%d_%H:%M:%S') + '.ogg'
                 break
